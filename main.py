@@ -393,9 +393,17 @@ class BackupFrame(ctk.CTkFrame):
         self.files_input_path = ctk.CTkEntry(master=self, placeholder_text='Selected files (Add files or folders)', state='disabled')
         self.files_input_path.grid(row=2, column=0, padx=10, pady=(0, 10), sticky='ew')
 
-        # Single button to add files and folders via a custom selector
-        self.select_input_mixed_btn = ctk.CTkButton(master=self, text='Add Files/Folders', command=self.select_files_and_folders)
-        self.select_input_mixed_btn.grid(row=2, column=1, padx=10, pady=(0, 10), sticky='ew')
+        # Input selection buttons
+        self.input_buttons_frame = ctk.CTkFrame(master=self)
+        self.input_buttons_frame.grid(row=2, column=1, padx=10, pady=(0, 10), sticky='ew')
+        self.input_buttons_frame.grid_columnconfigure(0, weight=1)
+        self.input_buttons_frame.grid_columnconfigure(1, weight=1)
+
+        self.select_input_mixed_btn = ctk.CTkButton(master=self.input_buttons_frame, text='Add Files/Folders', command=self.select_files_and_folders)
+        self.select_input_mixed_btn.grid(row=0, column=0, sticky='ew', padx=(0, 5))
+
+        self.clear_selection_btn = ctk.CTkButton(master=self.input_buttons_frame, text='Clear Selection', command=self.clear_selection, fg_color='#D90429', hover_color='#A3001C')
+        self.clear_selection_btn.grid(row=0, column=1, sticky='ew', padx=(5, 0))
 
         self.files_output_path = ctk.CTkEntry(master=self, placeholder_text='Type the path of the output folder', state='disabled')
         self.files_output_path.grid(row=3, column=0, padx=10, pady=(0, 10), sticky='ew')
@@ -415,6 +423,7 @@ class BackupFrame(ctk.CTkFrame):
 
     def _set_backup_controls_state(self, enabled: bool):
         self.select_input_mixed_btn.configure(state='normal' if enabled else 'disabled')
+        self.clear_selection_btn.configure(state='normal' if enabled else 'disabled')
         self.select_output_path_btn.configure(state='normal' if enabled else 'disabled')
         if enabled:
             self._update_backup_button_state()
@@ -512,6 +521,35 @@ class BackupFrame(ctk.CTkFrame):
             self.files_output_path.configure(state='disabled')
             self._update_backup_button_state()
 
+    def _update_selection_entry(self):
+        total = len(self.selected_input_files) + len(self.selected_input_folders)
+        if total == 0:
+            summary = 'No items selected'
+        elif total == 1:
+            if self.selected_input_files:
+                summary = self.selected_input_files[0]
+            else:
+                summary = self.selected_input_folders[0]
+        else:
+            summary = f'{total} item(s) selected'
+
+        self.files_input_path.configure(state='normal')
+        self.files_input_path.delete(0, END)
+        self.files_input_path.insert(0, summary)
+        self.files_input_path.configure(state='disabled')
+        self._update_backup_button_state()
+
+    def _log_selection_details(self, prefix: str):
+        self._write_log_message(f'{prefix}\n', 'info')
+        if self.selected_input_files:
+            self._write_log_message('Files:\n', 'message')
+            for path in self.selected_input_files:
+                self._write_log_message(f' - {path}\n', 'info')
+        if self.selected_input_folders:
+            self._write_log_message('Folders:\n', 'message')
+            for path in self.selected_input_folders:
+                self._write_log_message(f' - {path}\n', 'info')
+
     def _add_paths(self, paths):
         """Add a list of filesystem paths (files or folders) to the selection."""
         added = False
@@ -526,21 +564,19 @@ class BackupFrame(ctk.CTkFrame):
                     added = True
 
         if added:
-            # Update summary shown in entry
-            total = len(self.selected_input_files) + len(self.selected_input_folders)
-            if total == 1:
-                if self.selected_input_files:
-                    summary = self.selected_input_files[0]
-                else:
-                    summary = self.selected_input_folders[0]
-            else:
-                summary = f'{total} item(s) selected'
+            self._update_selection_entry()
+            self._log_selection_details('Selection updated')
 
-            self.files_input_path.configure(state='normal')
-            self.files_input_path.delete(0, END)
-            self.files_input_path.insert(0, summary)
-            self.files_input_path.configure(state='disabled')
-            self._update_backup_button_state()
+    def clear_selection(self):
+        if not (self.selected_input_files or self.selected_input_folders):
+            self._write_log_message('No items selected to clear.\n', 'info')
+            return
+
+        self._write_log_message('Clearing current selection...\n', 'info')
+        self._log_selection_details('Selection cleared')
+        self.selected_input_files = []
+        self.selected_input_folders = []
+        self._update_selection_entry()
 
     def backup_files(self):
         output_path = self.files_output_path.get().strip()
