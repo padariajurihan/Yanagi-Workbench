@@ -1,4 +1,9 @@
 import ast
+import os
+from pathlib import Path
+
+
+# --- CONSTANTS ---
 
 # Global color map for console and logs — reuse across the project
 MSG_COLORS = {
@@ -9,7 +14,40 @@ MSG_COLORS = {
     'default': '#EDF2F4'  # Platinum
 }
 
+# Icon files (filenames relative to project `icons/` folder)
+_ICON_FILES = {
+    "console": "terminal.ico",
+    "backup": "archive.ico",
+    "image_converter": "image.ico"
+}
 
+# Try to create CTkImage objects for convenient use in CTk widgets.
+# If Pillow or customtkinter are not available, fall back to None.
+ICONS = {}
+try:
+    from PIL import Image
+    import customtkinter as ctk
+
+    _root_dir = Path(__file__).resolve().parent.parent
+    _icons_dir = _root_dir / 'icons'
+
+    for name, fname in _ICON_FILES.items():
+        path = _icons_dir / fname
+        if path.exists():
+            try:
+                img = Image.open(path).convert('RGBA')
+                ICONS[name] = ctk.CTkImage(img, size=(20, 20))
+            except Exception:
+                ICONS[name] = None
+        else:
+            ICONS[name] = None
+except Exception:
+    # Pillow or customtkinter not available at import time — use None placeholders
+    for name in _ICON_FILES:
+        ICONS[name] = None
+
+# --- UTILITY FUNCTIONS ---
+# Utility functions
 def configure_text_tags(text_widget, colors: dict):
     """Configure text tags (colors) on a Text/CTkTextbox widget.
 
