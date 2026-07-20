@@ -1,7 +1,7 @@
 import customtkinter as ctk
 
 from app.tools.backup import BackupLogic
-from app.tools.shared import MSG_COLORS, configure_text_tags
+from app.shared.shared import MSG_COLORS, configure_text_tags
 
 
 class BackupFrame(ctk.CTkFrame):

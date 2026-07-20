@@ -1,7 +1,7 @@
 import ast
 from tkinter.constants import END
 
-from app.tools.shared import safe_echo_eval
+from app.shared.shared import safe_echo_eval
 
 
 class ConsoleLogic:

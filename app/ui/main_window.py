@@ -1,7 +1,7 @@
 import customtkinter as ctk
 
-from app.tools.config import APP_TITLE, APP_MIN_SIZE
-from app.tools.shared import ICONS
+from app.config.config import APP_TITLE, APP_MIN_SIZE
+from app.shared.shared import ICONS
 from app.ui.backup_frame import BackupFrame
 from app.ui.console_frame import ConsoleFrame
 from app.ui.image_converter_frame import ImageConverterFrame

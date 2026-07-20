@@ -2,7 +2,7 @@ import customtkinter as ctk
 from tkinter.constants import END
 
 from app.tools.console import ConsoleLogic
-from app.tools.shared import MSG_COLORS, configure_text_tags
+from app.shared.shared import MSG_COLORS, configure_text_tags
 
 
 class ConsoleFrame(ctk.CTkFrame):
