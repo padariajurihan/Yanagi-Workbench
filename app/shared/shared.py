@@ -18,7 +18,8 @@ MSG_COLORS = {
 _ICON_FILES = {
     "console": "terminal.ico",
     "backup": "archive.ico",
-    "image_converter": "image.ico"
+    "image_converter": "image.ico",
+    "document_converter": "files.ico"
 }
 
 # Try to create CTkImage objects for convenient use in CTk widgets.
